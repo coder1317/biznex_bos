@@ -1,19 +1,23 @@
-# Biznex POS — Pi + Phone Edition
+# Biznex BOS — Store Hub + Owner App
 
-A complete, self-hosted point of sale for Indian retail:
+A complete, self-hosted **business operating system** for Indian retail — a combined
+system of hardware and software:
 
-- **One Raspberry Pi (Ubuntu)** runs the whole store — POS terminal, sales, inventory,
-  receipts, reports. Works fully offline; the Pi is the source of truth.
-- **One Android app (owner portal)** on your phone, live-synced with the Pi over
-  **any Wi-Fi or cellular network** (via Tailscale), so you can watch the store from anywhere.
+- **One Biznex Store Hub** (a compact in-store appliance) runs the whole store — POS
+  terminal, sales, inventory, receipts, reports. Works fully offline; the Hub is the
+  source of truth.
+- **One Android app (Biznex Owner)** on your phone, live-synced with the Hub over
+  **any Wi-Fi or cellular network** (via Tailscale or ngrok), so you can watch the
+  store from anywhere.
 - **A marketing website** for the product (see `website/`).
 
 ```
 ┌───────────────────┐        ┌──────────────────────┐
-│  Owner app (APK)  │◄──────►│   Raspberry Pi 4/5   │
-│  on your phone    │  TLS   │   Ubuntu 22.04+      │
-│  (any network)    │ Tailscale │   Node 22 + SQLite   │
-└───────────────────┘        │   serves POS web UI  │
+│  Biznex Owner     │◄──────►│   Biznex Store Hub   │
+│  (phone app)      │  TLS   │   compact in-store   │
+│  (any network)    │ Tailscale/ngrok │   appliance (ARM64) │
+└───────────────────┘        │   Node 22 + SQLite   │
+                             │   serves POS web UI  │
                              └──────────────────────┘
 ```
 
@@ -21,39 +25,41 @@ A complete, self-hosted point of sale for Indian retail:
 
 | Folder | What it is |
 |---|---|
-| `server/` | The Pi server — Express + SQLite API, auth (JWT), realtime WebSocket, serves the POS UI on port 3000 |
+| `server/` | The Hub server — Express + SQLite API, auth (JWT), realtime WebSocket, serves the POS UI on port 3000 |
 | `pos-web/` | The in-store POS web app (React + Vite + Tailwind) — touch-friendly checkout, inventory, staff, discounts, complaints, reports, settings |
 | `owner-app/` | The **owner portal** Android app (React Native + Expo) — dashboard, orders, stock, staff, complaints, settings |
 | `website/` | The marketing website (React + Vite + Tailwind) |
-| `scripts/` | `pi-install.sh` (one-shot Pi setup), `build-all.sh`, systemd unit |
+| `scripts/` | `deploy-hub.sh` (one-shot Store Hub deployment), `build-all.sh`, systemd unit |
 
-## Part 1 — Install on the Raspberry Pi
+## Part 1 — Deploy the Biznex Store Hub
 
-Requirements: Raspberry Pi 4 or 5 running **Ubuntu Server / Desktop 22.04+** (64-bit).
+Requirements: an ARM64 Ubuntu appliance — our reference hardware is a Pi 4/5-class
+board running **Ubuntu Server / Desktop 22.04+** (64-bit); any ARM64 Ubuntu machine
+works too.
 
 ```bash
-# On the Pi — from this repo folder
-bash scripts/pi-install.sh
+# On the Hub — from this repo folder
+bash scripts/deploy-hub.sh
 ```
 
 The script:
 
 1. Installs Node.js 22 LTS and builds all dependencies
-2. Installs **Tailscale** so your phone can reach the Pi from any network
+2. Installs **Tailscale** so your phone can reach the Hub from any network
 3. Generates a secure `JWT_SECRET`
 4. Installs a **systemd service** (`biznex-pos`) that starts the server at boot
 5. Prints the store address and default logins
 
 **First-time Tailscale step (5 minutes):**
-1. On the Pi, the script runs `tailscale up` — open `https://login.tailscale.com`,
+1. On the Hub, the script runs `tailscale up` — open `https://login.tailscale.com`,
    log in, and approve the new device (it shows up as `biznex-store`).
 2. Install the **Tailscale app** on your phone (Play Store) and log in with the same account.
-3. Note the Pi's Tailscale IP (`tailscale ip -4` on the Pi) — that's the address
+3. Note the Hub's Tailscale IP (`tailscale ip -4` on the Hub) — that's the address
    your owner app will use from anywhere.
 
-Then open `http://<pi-ip>:3000` in a browser on the shop computer (or the Pi's own
-browser in kiosk mode) → sign in with `admin / admin123` → **change the passwords** in
-Settings.
+Then open `http://<hub-address>:3000` in a browser on the shop computer (or the
+Hub's own browser in kiosk mode) → sign in with `admin / admin123` → **change the
+passwords** in Settings.
 
 ### Remote access from anywhere (ngrok)
 
@@ -65,7 +71,7 @@ order placed through the public URL fires the `order:created` event to the
 phone immediately).
 
 ```bash
-# On the Pi — from this repo folder (free authtoken at dashboard.ngrok.com/signup)
+# On the Hub — from this repo folder (free authtoken at dashboard.ngrok.com/signup)
 bash scripts/ngrok-install.sh <your-ngrok-authtoken>
 ```
 
@@ -94,7 +100,7 @@ anywhere-access with zero setup cost.
   LAN clients spoof it. (Without this, the rate limiter throws
   `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` and every tunnelled request fails.)
 
-### Local development (without the Pi)
+### Local development (without a Hub)
 
 ```bash
 # Terminal 1 — API server
@@ -199,7 +205,7 @@ revenue chart, and the payment split.
    first that answers; session is restored via refresh token so login only
    happens once. A failover monitor switches to the next reachable address if
    the current one drops.
-6. **Offline, made obvious** — a red banner + Offline pill when the Pi is
+6. **Offline, made obvious** — a red banner + Offline pill when the Hub is
    unreachable; the app keeps showing the last-known data and re-syncs on its
    own when the connection returns.
 7. **Original IP is never lost** — `http://192.168.1.100:3000` stays as the
@@ -222,7 +228,7 @@ cd website && npm install && npm run dev      # local preview
 npm run build                                  # static site in website/dist
 ```
 
-Deploy `website/dist` to any static host (Netlify, Vercel, GitHub Pages, or the Pi itself).
+Deploy `website/dist` to any static host (Netlify, Vercel, GitHub Pages, or the Hub itself).
 
 ## API overview
 
@@ -252,7 +258,7 @@ Every action is enforced **server-side** (JWT role checks) **and** hidden in the
 | Settings, pairing QR, store config | — | — | ✅ |
 | Delete products / discounts (hard delete) | — | — | ✅ |
 
-- **POS web (Pi):** nav items, buttons and routes are filtered by role — a cashier
+- **POS web (Hub):** nav items, buttons and routes are filtered by role — a cashier
   who types `/staff` in the URL gets redirected to the POS terminal.
 - **Owner app (phone):** tabs are filtered by role too (cashiers see Home/Orders
   only). The server rejects anything a role isn't allowed to do regardless.
@@ -262,7 +268,7 @@ Every action is enforced **server-side** (JWT role checks) **and** hidden in the
 
 - **Change default passwords** on first login (Settings → Change password).
 - Set a real `JWT_SECRET` in `server/.env` (the installer does this automatically).
-- The Pi binds to `0.0.0.0` — the store network and Tailscale can reach it. Don't
+- The Hub binds to `0.0.0.0` — the store network and Tailscale can reach it. Don't
   expose port 3000 directly to the public internet; Tailscale or ngrok is the safe path.
 - Receipts, inventory movements and refunds are all audit-logged in `stock_movements`.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Biznex POS — Raspberry Pi (Ubuntu) installer
+# Biznex BOS — Store Hub deployment (ARM64 Ubuntu)
 #
 # What it does:
 #   1. Installs Node.js 22 LTS (if missing)
@@ -11,7 +11,7 @@
 #   4. Generates a secure JWT secret
 #   5. Installs a systemd service so Biznex starts at boot
 #
-# Usage:  bash scripts/pi-install.sh
+# Usage:  bash scripts/deploy-hub.sh
 # Run as your normal user (sudo is prompted when needed).
 
 set -euo pipefail
@@ -22,7 +22,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo ""
 echo "  ╔══════════════════════════════════════════════╗"
-echo "  ║         Biznex POS — Pi installer            ║"
+echo "  ║       Biznex BOS — Store Hub deployer      ║"
 echo "  ╚══════════════════════════════════════════════╝"
 echo ""
 

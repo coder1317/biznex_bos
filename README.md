@@ -1,66 +1,73 @@
-# Biznex POS — Pi + Phone Edition
+# Biznex BOS
 
-A complete, self-hosted **point of sale for Indian retail**, built around a
-Raspberry Pi in the store and an Android owner app on your phone.
+**The business operating system for modern retail.**
 
-- **One Raspberry Pi (Ubuntu)** runs the whole store — POS terminal, sales,
-  inventory, receipts, reports. Works fully offline; the Pi is the source of truth.
-- **One Android app (owner portal)** on your phone, live-synced with the Pi over
-  **any Wi-Fi or cellular network** (via Tailscale or ngrok), so you can watch the
-  store from anywhere.
-- **Offline-first by design** — the phone app stores the latest stats locally and
-  uses the tunnel only to refresh them in the background, exactly like a normal app.
-- **A marketing website** in a Bauhaus-inspired design system.
+Biznex is a combined system of **hardware and software** that runs your entire
+storefront — billing, inventory, staff, reports — and keeps you connected to
+every store from your phone, on any network, even when the internet is down.
 
 ```
-┌───────────────────┐        ┌──────────────────────┐
-│  Owner app (APK)  │◄──────►│   Raspberry Pi 4/5   │
-│  on your phone    │  TLS   │   Ubuntu 22.04+      │
-│  (any network)    │ Tailscale │   Node 22 + SQLite   │
-└───────────────────┘        │   serves POS web UI  │
-                             └──────────────────────┘
+┌────────────────────┐        secure sync       ┌─────────────────────┐
+│    Biznex Owner    │◄────────────────────────►│  Biznex Store Hub   │
+│  (mobile app, any  │   TLS + realtime events  │  (in-store device)  │
+│   network)         │                          │  runs your store    │
+└────────────────────┘                          └─────────────────────┘
 ```
 
-## What's in this repo
+## One system — hardware + software
 
-| Folder | What it is |
+| Component | What it is |
 |---|---|
-| `biznex-pos/server/` | The Pi server — Express + SQLite API, auth (JWT), realtime WebSocket, serves the POS UI on port 3000 |
-| `biznex-pos/pos-web/` | The in-store POS web app (React + Vite + Tailwind) — touch-friendly checkout, inventory, staff, discounts, complaints, reports, settings |
-| `biznex-pos/owner-app/` | The **owner portal** Android app (React Native + Expo) — dashboard, orders, stock, staff, complaints, settings |
-| `biznex-pos/website/` | The marketing website (React + Vite + Tailwind) |
-| `biznex-pos/scripts/` | `pi-install.sh` (one-shot Pi setup), `ngrok-install.sh` (remote tunnel), `build-all.sh`, systemd units |
+| **Biznex Store Hub** | The compact in-store device that runs the entire storefront — billing, inventory, receipts, reports. Purpose-built, low-power, and fully operational with **no internet connection**. |
+| **Biznex POS** | Touch-first storefront software on the Hub: checkout, discounts, stock, staff shifts, complaints, reports, settings. |
+| **Biznex Owner** | The mobile app for store owners and managers: live dashboard, orders, stock, staff, complaints — **realtime-synced from any network**. |
+| **Biznex Sync** | The secure sync layer connecting Store Hubs to owner devices over the internet — live events, background sync, offline-first delivery. |
+| **Biznex Website** | The product site, built from this repo. |
 
-## Quick start
+## Why Biznex
 
-**On the Raspberry Pi** (Ubuntu 22.04+, one command):
+- **Offline-first.** The store never stops because the internet did. The Hub
+  runs the whole storefront locally, and the Owner app keeps the latest numbers
+  on your phone — syncing in the background whenever a connection is available.
+- **Realtime visibility.** Every sale at the counter ticks up on your phone
+  within seconds — no matter which network you're on.
+- **Role-based access.** Owner, manager, and cashier each see exactly what they
+  need — enforced on the device, not just hidden in the UI.
+- **Multi-store ready.** One system, every store — the same Hub + Owner setup
+  scales across locations, with a single view for owners.
+- **Your data stays in your store.** Self-hosted by design; no third-party
+  cloud sits between you and your data.
+
+## Getting started
+
+Deploying a Biznex unit is a one-command setup:
 
 ```bash
 cd biznex-pos
-bash scripts/pi-install.sh
+bash scripts/deploy-hub.sh       # deploys the Store Hub (installs the platform,
+                                  # builds the POS, configures the sync layer)
 ```
 
-Then open `http://<pi-ip>:3000` and sign in with the owner account
+Then open `http://<hub-address>:3000` and sign in with the owner account
 (`admin / admin123` — **change it** in Settings).
 
-**Remote access from anywhere** (live updates through a public tunnel):
+**Connect your phone:**
 
 ```bash
-bash scripts/ngrok-install.sh <your-ngrok-authtoken>
+bash scripts/ngrok-install.sh <authtoken>   # secure remote access for owners
 ```
 
-**On your phone:** the signed release APK is at `biznex-pos/dist/biznex-owner.apk`.
-It opens straight into a live dashboard, restores your session automatically, and
-shows last-synced stats instantly — even offline.
+Install the **Biznex Owner** app (the signed release APK is at
+`biznex-pos/dist/biznex-owner.apk`). It finds your store automatically, restores
+your session, and shows last-synced stats instantly — even offline.
 
-**Local development / build instructions:** see [biznex-pos/README.md](biznex-pos/README.md)
-for the full guide (Pi install, APK build, offline-first sync model, API overview).
+**Full deployment & development guide:** [biznex-pos/README.md](biznex-pos/README.md)
 
 ## Roles & permissions
 
-Enforced **server-side** (JWT role checks) and hidden in the UI:
+Enforced on the Hub (server-side JWT checks) and hidden in the UI:
 
-| Action | Cashier | Manager | Admin/Owner |
+| Action | Cashier | Manager | Owner |
 |---|---|---|---|
 | Take orders (POS), view dashboard & orders | ✅ | ✅ | ✅ |
 | Create / edit products, adjust stock | — | ✅ | ✅ |
@@ -68,7 +75,7 @@ Enforced **server-side** (JWT role checks) and hidden in the UI:
 | Staff management (users) | — | — | ✅ |
 | Settings, pairing QR, store config | — | — | ✅ |
 
-## Default accounts
+## Demo credentials
 
 | Role | Username | Password |
 |---|---|---|
@@ -76,9 +83,20 @@ Enforced **server-side** (JWT role checks) and hidden in the UI:
 | Manager | `manager` | `manager123` |
 | Cashier | `cashier` | `cashier123` |
 
-## Security notes
+## Security & privacy
 
 - **Change default passwords** on first login (Settings → Change password).
-- Set a real `JWT_SECRET` in `server/.env` (the Pi installer does this automatically).
-- Don't expose port 3000 directly to the public internet — Tailscale or ngrok is the safe path.
-- Receipts, inventory movements and refunds are audit-logged in `stock_movements`.
+- Owner devices reach the Hub only through **encrypted tunnels** (Tailscale or
+  ngrok) — the Hub is never exposed directly to the public internet.
+- Role checks are enforced server-side; receipts, inventory movements and
+  refunds are audit-logged.
+
+## Developer notes
+
+- **Store Hub platform** — a compact ARM64 Ubuntu appliance running Node.js 22
+  + SQLite (Express API, JWT auth, realtime WebSocket). The deployment
+  installer (`scripts/deploy-hub.sh`) handles the full setup.
+- **Owner app** — React Native (Expo SDK 52), offline-first local store with a
+  background sync engine.
+- **POS web app** — React + Vite + Tailwind, touch-first for store counters.
+- **Website** — React + Vite + Tailwind, Bauhaus-inspired design system.
