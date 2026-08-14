@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "Biznex Owner",
+    "slug": "biznex-owner",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#080b12",
+    "primaryColor": "#4f7fff",
+    "android": {
+      "package": "in.biznex.owner",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#080b12"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "in.biznex.owner",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Biznex Owner to scan the pairing QR code on your store's screen."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ]
+    ]
+  }
+}

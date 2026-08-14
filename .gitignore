@@ -1,0 +1,45 @@
+# ── Dependencies ──────────────────────────────────────────────────────────
+node_modules/
+
+# ── Old prototypes (kept locally, not part of the repo) ───────────────────
+/Biznex/
+/BIZNEX_NEW-main/
+/BIZNEX_UI/
+
+# ── Databases (live store data — never push) ─────────────────────────────
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ── Secrets & credentials ────────────────────────────────────────────────
+*.keystore
+*.jks
+*.p12
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ── Android / Gradle build artifacts ─────────────────────────────────────
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/debug.keystore
+android/app/keystores/
+*.apk
+
+# ── Expo ─────────────────────────────────────────────────────────────────
+.expo/
+.expo-shared/
+expo-env.d.ts
+
+# ── OS / editor noise ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/

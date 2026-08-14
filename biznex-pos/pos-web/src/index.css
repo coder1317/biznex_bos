@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink text-mist antialiased;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-ink-border2 rounded-full;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-mist-faint;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium
+      transition-all duration-150 select-none disabled:opacity-50 disabled:pointer-events-none
+      px-3.5 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-light shadow-glow;
+  }
+  .btn-ghost {
+    @apply btn bg-ink-lighter text-mist hover:bg-ink-border text-mist-dim border border-ink-border;
+  }
+  .btn-danger {
+    @apply btn bg-bad/15 text-bad border border-bad/30 hover:bg-bad/25;
+  }
+  .btn-good {
+    @apply btn bg-good text-white hover:bg-good-dark font-semibold;
+  }
+
+  .card {
+    @apply bg-ink-card border border-ink-border rounded-xl shadow-card;
+  }
+  .card-flat {
+    @apply bg-ink-lighter border border-ink-border rounded-xl;
+  }
+  .input {
+    @apply w-full rounded-lg bg-ink-lighter border border-ink-border px-3 py-2 text-sm text-mist
+      placeholder:text-mist-faint focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20
+      transition-colors;
+  }
+  .label {
+    @apply block text-xs font-medium uppercase tracking-wider text-mist-faint mb-1.5;
+  }
+  .th {
+    @apply text-left text-[11px] font-semibold uppercase tracking-wider text-mist-faint px-4 py-3 whitespace-nowrap;
+  }
+  .td {
+    @apply px-4 py-3 text-sm text-mist whitespace-nowrap;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold;
+  }
+}
+
+/* Number inputs: hide spinners for a cleaner POS feel */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
