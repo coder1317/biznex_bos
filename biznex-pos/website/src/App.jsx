@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, ChevronDown, Circle, Quote, Square, Triangle, Mail, Phone } from 'lucide-react';
 
 // ── Reveal-on-scroll ─────────────────────────────────────────────────────────
@@ -47,11 +47,12 @@ const TARGETS = [
 ];
 
 const FAQS = [
-  { q: 'Does it work without internet?', a: 'Yes. The Offline-First Architecture keeps every store running on a local Mini PC deployment — billing, inventory and reporting continue even when the connection drops, and everything syncs automatically when it returns.' },
-  { q: 'How many stores can I manage?', a: 'BIZNEX BOS is built for multi-store and franchise chains. The admin dashboard gives you combined analytics across every location, with per-store selectors and store-by-store comparison.' },
-  { q: 'Is my data safe?', a: 'Your data lives in a hybrid cloud — a local store cloud plus central cloud sync with automatic backups. Data privacy is built in, and you always have a local copy of everything.' },
-  { q: 'What hardware do I need?', a: 'We support custom Mini PC/PCB deployment with printer and scanner support. The system is designed for industrial-grade reliability at an affordable price.' },
-  { q: 'Can I switch from my current POS?', a: 'Yes. BIZNEX BOS replaces 6-8 scattered tools — POS apps, spreadsheets, WhatsApp reporting and manual registers — with one unified platform, so you consolidate everything in one dashboard.' },
+  { q: 'Does it work without internet?', a: 'Yes. The Biznex Store Hub runs your entire storefront locally, so billing, inventory and reports keep working even when the internet drops. When the connection returns, everything syncs automatically — to your owner app and to your other stores. Nothing is lost, ever.' },
+  { q: 'How many stores can I manage?', a: 'As many as you like. Biznex is built for multi-store and franchise chains — one dashboard gives you combined analytics across every location, with per-store filters and side-by-side comparison. Add a Store Hub per location and run them all from the Biznex Owner app on your phone.' },
+  { q: 'Is my data safe?', a: 'Your data stays in your store. Each Store Hub keeps a full local copy of your business data, and the sync layer adds automatic backups. There is no third-party cloud sitting between you and your numbers — and we never sell or share your data.' },
+  { q: 'What hardware do I need?', a: 'One compact Biznex Store Hub per location — a low-power, industrial-grade in-store device that needs no big server and no internet to run. Add a receipt printer, a barcode scanner and a touchscreen or tablet at the counter, and you are live.' },
+  { q: 'Who can access what?', a: 'Access is role-based by design. Owners see everything — reports, staff, settings. Managers run day-to-day operations — products, stock, discounts. Cashiers simply bill and serve. Every role is enforced on the Hub itself, not just hidden in the UI.' },
+  { q: 'Can I switch from my current POS?', a: 'Yes. Biznex replaces the 6-8 scattered tools — POS apps, spreadsheets, WhatsApp reporting and manual registers — with one unified system. Set up a Store Hub at your store, add your products, and your team can start billing on day one.' },
 ];
 
 // Geometric brand mark: circle + rotated square + triangle
@@ -69,6 +70,7 @@ export default function App() {
   useReveal();
   const [menuOpen, setMenuOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(0);
+  const faqRefs = useRef([]);
 
   const nav = [
     ['Features', '#features'],
@@ -359,14 +361,34 @@ export default function App() {
               return (
                 <div key={f.q} className={`acc-item reveal ${open ? 'open' : ''}`}>
                   <button
-                    className="flex w-full items-center justify-between gap-4 px-5 sm:px-6 py-4 text-left"
+                    ref={(el) => (faqRefs.current[i] = el)}
+                    id={`faq-btn-${i}`}
+                    type="button"
+                    aria-expanded={open}
+                    aria-controls={`faq-panel-${i}`}
+                    onKeyDown={(e) => {
+                      if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+                      e.preventDefault();
+                      let next = i;
+                      if (e.key === 'ArrowDown') next = Math.min(i + 1, FAQS.length - 1);
+                      else if (e.key === 'ArrowUp') next = Math.max(i - 1, 0);
+                      else if (e.key === 'Home') next = 0;
+                      else if (e.key === 'End') next = FAQS.length - 1;
+                      faqRefs.current[next]?.focus();
+                    }}
+                    className="flex w-full items-center justify-between gap-4 px-5 sm:px-6 py-4 text-left focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-ink"
                     onClick={() => setFaqOpen(open ? -1 : i)}
                   >
                     <span className="font-bold uppercase tracking-tight text-sm sm:text-base">{f.q}</span>
                     <ChevronDown className={`w-5 h-5 shrink-0 transition-transform duration-200 ${open ? 'rotate-180 text-white' : ''}`} strokeWidth={3} />
                   </button>
                   {open && (
-                    <div className="acc-content px-5 sm:px-6 py-5 animate-fadeUp">
+                    <div
+                      id={`faq-panel-${i}`}
+                      role="region"
+                      aria-labelledby={`faq-btn-${i}`}
+                      className="acc-content px-5 sm:px-6 py-5 animate-fadeUp"
+                    >
                       <p className="body-bh !text-[15px]">{f.a}</p>
                     </div>
                   )}
