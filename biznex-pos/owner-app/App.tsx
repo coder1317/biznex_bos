@@ -1,6 +1,6 @@
 import React, { Component, ReactNode, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -21,6 +21,7 @@ import {
 import { hydrateCache, clearAllCache } from './src/store';
 import { startSync, stopSync } from './src/sync';
 import { C, F } from './src/theme';
+import LogoMark from './assets/logo-mark.png';
 
 // Keep the native splash visible until the icon font is ready — otherwise
 // screens render before the font loads and every icon shows up blank.
@@ -192,8 +193,8 @@ export default function App() {
       <ErrorBoundary>
         <StatusBar style="light" />
         <View style={s.splash}>
-          <View style={s.logo}>
-            <Text style={s.logoText}>B</Text>
+          <View style={[s.logo, s.logoWhite]}>
+            <Image source={LogoMark} style={s.logoImage} resizeMode="contain" />
           </View>
           <Text style={s.splashTitle}>Biznex Owner</Text>
           <Text style={s.splashSub}>Starting…</Text>
@@ -216,8 +217,8 @@ export default function App() {
           />
         ) : (
           <View style={s.splash}>
-            <View style={s.logo}>
-              <Text style={s.logoText}>B</Text>
+            <View style={[s.logo, s.logoWhite]}>
+              <Image source={LogoMark} style={s.logoImage} resizeMode="contain" />
             </View>
             <Text style={s.splashTitle}>Biznex Owner</Text>
             <Text style={s.splashSub}>Finding your store and restoring session…</Text>
@@ -286,8 +287,8 @@ const s = StyleSheet.create({
   content: { flex: 1 },
   splash: { flex: 1, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center', padding: 32 },
   logo: {
-    width: 64,
-    height: 64,
+    width: 72,
+    height: 72,
     borderRadius: 18,
     backgroundColor: C.accent,
     alignItems: 'center',
@@ -298,6 +299,8 @@ const s = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 10,
   },
+  logoWhite: { backgroundColor: '#ffffff' },
+  logoImage: { width: 56, height: 48 },
   logoText: { color: '#fff', fontSize: 30, fontWeight: '900' },
   splashTitle: { color: C.text, fontSize: F.lg, fontWeight: '800', marginTop: 18 },
   splashSub: { color: C.dim, fontSize: F.sm, marginTop: 6, textAlign: 'center' },

@@ -120,6 +120,10 @@ included at `dist/biznex-owner.apk`** (34 MB, arm64 + 32-bit arm) — copy it to
 your phone and tap it to install (enable "Install unknown apps" for your
 browser/file manager). No Expo Go, no store, nothing else needed.
 
+The app ships with the **Biznex brand icon** (legacy + adaptive Android
+launcher icons) and a **logo splash** — icon sources live in `assets/` and are
+wired through `app.json` (`icon`, `adaptiveIcon.foregroundImage`).
+
 > **Why release and not debug?** Debug APKs don't embed the JavaScript bundle —
 > they expect a Metro dev server, so installed standalone they open to a white
 > screen. Release builds bundle the JS (Hermes bytecode) into the APK and run

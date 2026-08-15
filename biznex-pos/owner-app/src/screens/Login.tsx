@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import LogoMark from '../../assets/logo-mark.png';
 import { User, getServerUrl, login, setServerUrl, discoverServer, ORIGINAL_SERVER, NGROK_URL, getStartupErrors } from '../api';
 import ScanQr from './ScanQr';
 import { C, F } from '../theme';
@@ -78,8 +80,8 @@ export default function Login({ onLogin, startupErrors }: { onLogin: (user: User
 
       <KeyboardAvoidingView style={s.kav} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={s.wrap} keyboardShouldPersistTaps="handled">
-          <View style={s.logo}>
-            <Text style={s.logoText}>B</Text>
+          <View style={[s.logo, s.logoWhite]}>
+            <Image source={LogoMark} style={s.logoImage} resizeMode="contain" />
           </View>
           <Text style={s.title}>Biznex Owner</Text>
           <Text style={s.subtitle}>Your store, in your pocket</Text>
@@ -218,6 +220,8 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(168,85,247,0.12)',
   },
   wrap: { flexGrow: 1, justifyContent: 'center', padding: 24, paddingVertical: 48 },
+  logoWhite: { backgroundColor: '#ffffff' },
+  logoImage: { width: 56, height: 48 },
   logo: {
     width: 68,
     height: 68,
