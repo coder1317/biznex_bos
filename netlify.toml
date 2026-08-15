@@ -1,0 +1,8 @@
+# Netlify deploy config for the Biznex BOS marketing website.
+# Place at the repo root so Netlify picks it up when the GitHub repo
+# (coder1317/biznex_bos) is linked. Deploys the static site only.
+
+[build]
+  base = "biznex-pos/website"
+  command = "npm ci && npm run build"
+  publish = "dist"
