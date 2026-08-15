@@ -47,7 +47,9 @@ const ROLE_LEVEL = { owner: 4, admin: 3, manager: 2, cashier: 1 };
       {/* Sidebar */}
       <aside className="w-56 shrink-0 bg-ink-light border-r border-white/10 flex flex-col">
         <div className="h-14 flex items-center gap-2.5 px-5 border-b border-white/10">
-          <div className="w-7 h-7 rounded-lg bg-white/95 text-accent-dark flex items-center justify-center font-bold text-sm">B</div>
+          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
+            <img src="/logo-mark.png" alt="Biznex" className="w-7 h-6 object-contain" />
+          </div>
           <div>
             <div className="text-sm font-bold text-white leading-none">Biznex</div>
             <div className="text-[10px] text-white/60 mt-0.5">Store POS</div>
