@@ -1,10 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, ChevronDown, Circle, Quote, Square, Triangle, Mail, Phone } from 'lucide-react';
 
 // ── Reveal-on-scroll ─────────────────────────────────────────────────────────
 function useReveal() {
-  useEffect(() => {
+  // Runs after EVERY render (no deps), not just once: React rewrites
+  // className on re-render and drops the imperatively-added `in-view`
+  // class (e.g. when an accordion item's `open` class toggles), which
+  // would snap the element back to opacity: 0. Re-asserting here keeps
+  // anything already on screen visible with no flicker.
+  useLayoutEffect(() => {
     const els = document.querySelectorAll('.reveal');
+    const inView = (el) => {
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      return r.top < vh * 0.9 && r.bottom > 0;
+    };
     const obs = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
@@ -16,9 +26,12 @@ function useReveal() {
       },
       { threshold: 0.12 }
     );
-    els.forEach((el) => obs.observe(el));
+    els.forEach((el) => {
+      if (inView(el)) el.classList.add('in-view');
+      else obs.observe(el);
+    });
     return () => obs.disconnect();
-  }, []);
+  });
 }
 
 // ── Data (content from BIZNEX BOS) ───────────────────────────────────────────
