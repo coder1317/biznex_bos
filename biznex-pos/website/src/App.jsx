@@ -113,7 +113,6 @@ export default function App() {
         <div className="container-x grid gap-10 lg:grid-cols-2 lg:items-stretch">
           {/* Left — copy */}
           <div className="reveal flex flex-col justify-center">
-            <img src="/logo-full.png" alt="Biznex BOS" className="h-16 sm:h-20 w-auto mb-1" />
             <div className="inline-flex items-center gap-2 w-fit border-2 border-ink bg-yellow px-3 py-1.5 shadow-hard-sm">
               <Circle className="w-3 h-3 fill-ink" />
               <span className="label-bh !text-[10px] sm:!text-xs">Multi-store · Franchise chains · India</span>
