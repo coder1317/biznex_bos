@@ -6,6 +6,9 @@ node_modules/
 /BIZNEX_NEW-main/
 /BIZNEX_UI/
 
+# ── Marketing website (own repo: biznex-website) ───────────────────────────
+/biznex-website/
+
 # ── Databases (live store data — never push) ─────────────────────────────
 *.db
 *.db-shm

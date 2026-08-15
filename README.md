@@ -22,7 +22,7 @@ every store from your phone, on any network, even when the internet is down.
 | **Biznex POS** | Touch-first storefront software on the Hub: checkout, discounts, stock, staff shifts, complaints, reports, settings. |
 | **Biznex Owner** | The mobile app for store owners and managers: live dashboard, orders, stock, staff, complaints — **realtime-synced from any network**. |
 | **Biznex Sync** | The secure sync layer connecting Store Hubs to owner devices over the internet — live events, background sync, offline-first delivery. |
-| **Biznex Website** | The product site, built from this repo. |
+| **Biznex Website** | The product site — maintained in its own repository (see below). |
 
 ## Why Biznex
 
@@ -99,4 +99,4 @@ Enforced on the Hub (server-side JWT checks) and hidden in the UI:
 - **Owner app** — React Native (Expo SDK 52), offline-first local store with a
   background sync engine.
 - **POS web app** — React + Vite + Tailwind, touch-first for store counters.
-- **Website** — React + Vite + Tailwind, Bauhaus-inspired design system.
+- **Website** — React + Vite + Tailwind, Bauhaus-inspired design system. Hosted in its own repository (`biznex-website`) with Netlify auto-deploy.

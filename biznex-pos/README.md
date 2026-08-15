@@ -9,7 +9,8 @@ system of hardware and software:
 - **One Android app (Biznex Owner)** on your phone, live-synced with the Hub over
   **any Wi-Fi or cellular network** (via Tailscale or ngrok), so you can watch the
   store from anywhere.
-- **A marketing website** for the product (see `website/`).
+- **A marketing website** for the product — maintained in a separate repository
+  (`biznex-website`) with its own Netlify auto-deploy.
 
 ```
 ┌───────────────────┐        ┌──────────────────────┐
@@ -28,7 +29,6 @@ system of hardware and software:
 | `server/` | The Hub server — Express + SQLite API, auth (JWT), realtime WebSocket, serves the POS UI on port 3000 |
 | `pos-web/` | The in-store POS web app (React + Vite + Tailwind) — touch-friendly checkout, inventory, staff, discounts, complaints, reports, settings |
 | `owner-app/` | The **owner portal** Android app (React Native + Expo) — dashboard, orders, stock, staff, complaints, settings |
-| `website/` | The marketing website (React + Vite + Tailwind) |
 | `scripts/` | `deploy-hub.sh` (one-shot Store Hub deployment), `build-all.sh`, systemd unit |
 
 ## Part 1 — Deploy the Biznex Store Hub
@@ -225,14 +225,12 @@ First-time setup (only needed once):
 3. From then on the app **skips login** and shows last-synced data instantly;
    stats update in the background whenever the tunnel is reachable.
 
-## Part 3 — The website
+## Part 3 — The marketing website
 
-```bash
-cd website && npm install && npm run dev      # local preview
-npm run build                                  # static site in website/dist
-```
-
-Deploy `website/dist` to any static host (Netlify, Vercel, GitHub Pages, or the Hub itself).
+The marketing site lives in its **own repository** (`biznex-website`, sibling of this
+one), built with React + Vite + Tailwind in a Bauhaus-inspired design system and
+deployed to Netlify on every push. See that repo's `README.md` for local dev and
+deploy instructions.
 
 ## API overview
 
