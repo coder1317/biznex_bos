@@ -55,9 +55,7 @@ export default function Login() {
       <div className="relative w-full max-w-sm animate-fadeUp">
         {/* Brand header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-accent to-purple-500 flex items-center justify-center text-white text-2xl font-black shadow-glow ring-4 ring-accent/10">
-            B
-          </div>
+          <img src="/logo-mark.png" alt="Biznex" className="w-16 h-16 mx-auto rounded-2xl bg-white p-1.5 object-contain shadow-glow ring-4 ring-accent/10" />
           <h1 className="mt-4 text-2xl font-bold text-mist tracking-tight">Biznex POS</h1>
           <p className="text-sm text-mist-faint mt-1.5">Sign in to start selling</p>
         </div>

@@ -55,16 +55,6 @@ const FAQS = [
 ];
 
 // Geometric brand mark: circle + rotated square + triangle
-function Logo() {
-  return (
-    <div className="flex items-center gap-1.5" aria-hidden>
-      <div className="w-3 h-3 rounded-full bg-red border-2 border-ink" />
-      <div className="w-3 h-3 bg-blue border-2 border-ink rotate-45" />
-      <div className="w-3 h-3 shape-triangle bg-yellow border border-ink" />
-    </div>
-  );
-}
-
 function Shape({ kind, className = '' }) {
   if (kind === 'circle') return <div className={`rounded-full ${className}`} />;
   if (kind === 'triangle') return <div className={`shape-triangle ${className}`} />;
@@ -93,7 +83,7 @@ export default function App() {
       <header className="fixed top-0 inset-x-0 z-50 bg-canvas border-b-4 border-ink">
         <div className="container-x flex h-16 items-center justify-between">
           <a href="#top" className="flex items-center gap-3">
-            <Logo />
+            <img src="/logo-mark.png" alt="Biznex" className="h-9 w-auto" />
             <span className="text-lg font-black uppercase tracking-tighter">Biznex<span className="text-red"> BOS</span></span>
           </a>
           <nav className="hidden md:flex items-center gap-7">
@@ -123,6 +113,7 @@ export default function App() {
         <div className="container-x grid gap-10 lg:grid-cols-2 lg:items-stretch">
           {/* Left — copy */}
           <div className="reveal flex flex-col justify-center">
+            <img src="/logo-full.png" alt="Biznex BOS" className="h-16 sm:h-20 w-auto mb-1" />
             <div className="inline-flex items-center gap-2 w-fit border-2 border-ink bg-yellow px-3 py-1.5 shadow-hard-sm">
               <Circle className="w-3 h-3 fill-ink" />
               <span className="label-bh !text-[10px] sm:!text-xs">Multi-store · Franchise chains · India</span>
@@ -421,7 +412,9 @@ export default function App() {
           <div className="flex flex-col md:flex-row items-start justify-between gap-10">
             <div className="max-w-xs">
               <div className="flex items-center gap-3">
-                <Logo />
+                <div className="w-9 h-9 bg-white border-2 border-ink shadow-hard-sm flex items-center justify-center">
+                  <img src="/logo-mark.png" alt="Biznex" className="h-7 w-auto" />
+                </div>
                 <span className="font-black uppercase tracking-tighter">Biznex<span className="text-yellow"> BOS</span></span>
               </div>
               <p className="text-sm font-medium text-white/60 leading-relaxed mt-4">
