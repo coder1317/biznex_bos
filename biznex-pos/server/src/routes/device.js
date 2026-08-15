@@ -37,6 +37,18 @@ export function detectDeviceAddresses(port) {
 }
 
 export const deviceRouter = Router();
+
+/**
+ * Public (no auth): the store's current public ngrok URL, if a tunnel is up.
+ * The owner app polls this on every successful connection so it can learn a
+ * changed tunnel address automatically — even when ngrok assigns a new URL on
+ * restart, the app heals itself without manual reconfiguration.
+ */
+deviceRouter.get('/public-url', async (_req, res) => {
+  const url = await getNgrokPublicUrl();
+  res.json({ url });
+});
+
 deviceRouter.use(requireAuth);
 
 /**

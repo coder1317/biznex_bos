@@ -89,6 +89,15 @@ the address under **Remote (ngrok)** — scan that QR and your phone is connecte
 from any network. No ngrok account? Tailscale above already gives you
 anywhere-access with zero setup cost.
 
+**The app self-heals the tunnel address.** ngrok can assign a new public URL
+when the tunnel restarts — but the owner app never hardcodes it. On every
+successful connection (login, auto-connect, or the 15s health check) it asks
+the store for its live public URL (`GET /api/device/public-url`, which reads
+ngrok's local API) and updates its stored addresses automatically. Even if
+ngrok hands out a brand-new URL, the app re-learns it — no re-pairing, no
+manual reconfiguration. Check the live address anytime with
+`bash scripts/ngrok-status.sh`.
+
 **Two things are already handled for you in the code:**
 
 - The owner app sends `ngrok-skip-browser-warning` on every request. Without
@@ -245,6 +254,7 @@ All routes are under `/api`, auth via `Authorization: Bearer <jwt>`:
 - `GET/POST /discounts` · `GET/POST /complaints` · `GET/PUT /settings`
 - `GET /dashboard` · `GET /sales-range?days=N` · `GET /reports/*`
 - `GET /sync/state` · `GET /sync/snapshot`  ← what the owner app uses for incremental sync
+- `GET /device/addresses` (QR pairing) · `GET /device/public-url`  ← current LAN + ngrok addresses; the app auto-learns the tunnel URL from here
 - `WS /ws` — live events: `order:created`, `inventory:updated`, `complaint:created`, …
 
 ## Roles & permissions

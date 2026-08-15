@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import {
   ORIGINAL_SERVER,
-  NGROK_URL,
   clearSession,
   getConnState,
   getKnownServers,
+  getNgrokUrl,
   getServerUrl,
   getStoredUser,
   setServerUrl,
@@ -53,14 +53,21 @@ export default function Settings({ onLogout }: { onLogout: () => void }) {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<'ok' | 'fail' | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [ngrokUrl, setNgrokUrl] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     // Local state (server address, known servers, user) always loads — even
     // when the store server is unreachable, so the address can be changed.
-    const [stored, known, u] = await Promise.all([getServerUrl(), getKnownServers(), getStoredUser()]);
+    const [stored, known, u, ngrok] = await Promise.all([
+      getServerUrl(),
+      getKnownServers(),
+      getStoredUser(),
+      getNgrokUrl(),
+    ]);
     setUrl(stored);
     setUrlInput(stored);
     setServers(known);
+    setNgrokUrl(ngrok);
     setUser(u);
   }, []);
 
@@ -158,7 +165,7 @@ export default function Settings({ onLogout }: { onLogout: () => void }) {
                     {u}
                   </Text>
                   {u === ORIGINAL_SERVER && <Badge color={C.amber}>Original</Badge>}
-                  {u === NGROK_URL && <Badge color={C.accentLight}>Remote</Badge>}
+                  {ngrokUrl && u === ngrokUrl && <Badge color={C.accentLight}>Remote</Badge>}
                   {isCurrent && <Badge color={C.green}>Current</Badge>}
                 </TouchableOpacity>
               );

@@ -4,6 +4,7 @@ const KEY_URL = 'biznex_server_url';
 const KEY_TOKEN = 'biznex_token';
 const KEY_USER = 'biznex_user';
 const KEY_REFRESH = 'biznex_refresh_token';
+const KEY_NGROK = 'biznex_ngrok_url';
 
 export interface User {
   id: number;
@@ -24,31 +25,92 @@ export class ApiError extends Error {
 /** The original/default store server. Always kept in the known-servers list. */
 export const ORIGINAL_SERVER = 'http://192.168.1.100:3000';
 
-/** The permanent ngrok tunnel — reachable from any network, used as a failover. */
+/** Fallback ngrok tunnel (used only until the server tells us the live one). */
 export const NGROK_URL = 'https://backspace-rice-surfacing.ngrok-free.dev';
 
 const KEY_SERVERS = 'biznex_servers';
 
+/**
+ * The current ngrok tunnel URL, learned from the server (see refreshPublicUrl).
+ * The hardcoded NGROK_URL above is only the fallback — ngrok can assign a new
+ * URL on restart, and the app heals itself by asking the store for its live
+ * public URL on every successful connection.
+ */
+export async function getNgrokUrl(): Promise<string> {
+  try {
+    return (await AsyncStorage.getItem(KEY_NGROK)) || NGROK_URL;
+  } catch {
+    return NGROK_URL;
+  }
+}
+
+export async function saveNgrokUrl(url: string): Promise<void> {
+  const clean = (url || '').trim().replace(/\/+$/, '');
+  if (!clean) return;
+  const prev = await getNgrokUrl();
+  if (clean === prev) return;
+  await AsyncStorage.setItem(KEY_NGROK, clean);
+  // Drop the outdated tunnel URL from the known list before adding the new one,
+  // so a changed ngrok address doesn't linger as a dead candidate.
+  try {
+    const raw = await AsyncStorage.getItem(KEY_SERVERS);
+    const list: string[] = raw ? JSON.parse(raw) : [];
+    await AsyncStorage.setItem(
+      KEY_SERVERS,
+      JSON.stringify(list.filter((u) => u !== prev && u !== clean))
+    );
+  } catch {
+    /* keep whatever list we have */
+  }
+  await rememberServer(clean);
+}
+
+/**
+ * Ask the store for its current public ngrok URL and remember it. Safe to call
+ * with any reachable base (LAN or tunnel) — if the tunnel changed, the next
+ * connect learns the new address and the app keeps working from anywhere.
+ */
+export async function refreshPublicUrl(base: string): Promise<void> {
+  try {
+    const clean = (base || '').trim().replace(/\/+$/, '');
+    if (!clean) return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`${clean}/api/device/public-url`, {
+      signal: controller.signal,
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+    });
+    clearTimeout(timer);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && typeof data.url === 'string' && data.url) await saveNgrokUrl(data.url);
+  } catch {
+    /* unreachable right now — try again on the next successful connection */
+  }
+}
+
 /** Known server addresses — the original IP and ngrok tunnel are always listed. */
 export async function getKnownServers(): Promise<string[]> {
   try {
+    const ngrok = await getNgrokUrl();
     const raw = await AsyncStorage.getItem(KEY_SERVERS);
     const list: string[] = raw ? JSON.parse(raw) : [];
     return [
       ORIGINAL_SERVER,
-      ...list.filter((u) => u !== ORIGINAL_SERVER && u !== NGROK_URL),
-      NGROK_URL,
+      ...list.filter((u) => u !== ORIGINAL_SERVER && u !== ngrok),
+      ngrok,
     ];
   } catch {
-    return [ORIGINAL_SERVER, NGROK_URL];
+    return [ORIGINAL_SERVER, await getNgrokUrl()];
   }
 }
 
 export async function rememberServer(url: string): Promise<void> {
   const clean = url.trim().replace(/\/+$/, '');
   if (!clean) return;
+  const ngrok = await getNgrokUrl();
   const list = await getKnownServers();
-  const next = [ORIGINAL_SERVER, ...list.filter((u) => u !== ORIGINAL_SERVER && u !== NGROK_URL && u !== clean), clean, NGROK_URL];
+  const next = [ORIGINAL_SERVER, ...list.filter((u) => u !== ORIGINAL_SERVER && u !== ngrok && u !== clean), clean, ngrok];
   await AsyncStorage.setItem(KEY_SERVERS, JSON.stringify(next));
 }
 
@@ -116,7 +178,7 @@ export async function getServerCandidates(): Promise<string[]> {
   };
   push(saved);
   push(ORIGINAL_SERVER);
-  push(NGROK_URL);
+  push(await getNgrokUrl());
   known.forEach(push);
   return out;
 }
@@ -171,6 +233,7 @@ export async function autoConnect(): Promise<{ user: User; server: string } | nu
     const server = await discoverServer();
     if (!server) return null;
     await setServerUrl(server);
+    refreshPublicUrl(server); // learn any changed tunnel address immediately
     const refresh = await AsyncStorage.getItem(KEY_REFRESH);
     if (!refresh) return null;
     try {
@@ -237,6 +300,9 @@ export async function login(serverUrl: string, username: string, password: strin
     body: { username, password },
   });
   await saveSession(d.token, d.user, d.refreshToken);
+  // Learn the store's current public tunnel URL so remote access keeps working
+  // even if ngrok assigned a new address since the last visit.
+  refreshPublicUrl(serverUrl);
   return d.user;
 }
 
@@ -369,9 +435,14 @@ let healthTimer: ReturnType<typeof setInterval> | null = null;
 export function startHealthMonitor(): void {
   stopHealthMonitor();
   healthTimer = setInterval(async () => {
-    if (getConnState() === 'online') return; // live socket is up — nothing to do
     try {
       const current = await getServerUrl();
+      if (getConnState() === 'online') {
+        // Socket is up — keep the public tunnel URL fresh so a changed ngrok
+        // address is learned automatically the moment it happens.
+        await refreshPublicUrl(current);
+        return;
+      }
       const server = await discoverServer();
       if (server && server !== current) {
         await setServerUrl(server);
