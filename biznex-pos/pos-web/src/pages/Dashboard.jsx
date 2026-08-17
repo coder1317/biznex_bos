@@ -66,7 +66,7 @@ export default function Dashboard() {
                       <span className="text-mist-dim">{money(p.total)} <span className="text-mist-faint">· {p.count}</span></span>
                     </div>
                     <div className="h-1.5 rounded-full bg-ink-lighter overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-accent to-purple-500" style={{ width: `${pct}%` }} />
+                      <div className="h-full rounded-full bg-gradient-to-r from-accent to-accent-light" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -120,7 +120,7 @@ function BarChart({ data, max, money, days }) {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
       {[0.25, 0.5, 0.75, 1].map((f) => (
-        <line key={f} x1={pad} x2={W - pad} y1={H - H * f} y2={H - H * f} stroke="#1e2536" strokeWidth="1" strokeDasharray="3 4" />
+        <line key={f} x1={pad} x2={W - pad} y1={H - H * f} y2={H - H * f} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 4" />
       ))}
       {data.map((d, i) => {
         const h = Math.max(2, (d.revenue / max) * (H - 34));
@@ -131,7 +131,7 @@ function BarChart({ data, max, money, days }) {
           <g key={d.day}>
             <title>{`${d.day} — ${money(d.revenue)} (${d.orders} orders)`}</title>
             <rect x={x} y={y} width={bw * 0.64} height={h} rx="4" className="fill-accent/80 hover:fill-accent-light transition-all" />
-            <text x={x + bw * 0.32} y={H - 12} textAnchor="middle" fontSize="10" fill="#5d6880">{days[label]}</text>
+            <text x={x + bw * 0.32} y={H - 12} textAnchor="middle" fontSize="10" fill="#94a3b8">{days[label]}</text>
           </g>
         );
       })}

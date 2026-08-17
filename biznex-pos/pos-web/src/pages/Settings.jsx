@@ -29,7 +29,7 @@ export default function Settings() {
   useEffect(() => {
     const url = addresses[selected]?.url;
     if (!url) { setQrDataUrl(''); return; }
-    QRCode.toDataURL(url, { width: 320, margin: 1, color: { dark: '#0b0e15', light: '#ffffff' } })
+    QRCode.toDataURL(url, { width: 320, margin: 1, color: { dark: '#020617', light: '#ffffff' } })
       .then(setQrDataUrl)
       .catch(() => setQrDataUrl(''));
   }, [addresses, selected]);

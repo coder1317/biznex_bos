@@ -121,7 +121,7 @@ export default function ScanQr({ onFound, onClose }: { onFound: (url: string) =>
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#000' },
-  center: { flex: 1, backgroundColor: '#0b0e15', alignItems: 'center', justifyContent: 'center', padding: 32 },
+  center: { flex: 1, backgroundColor: '#020617', alignItems: 'center', justifyContent: 'center', padding: 32 },
   iconCircle: {
     width: 72,
     height: 72,

@@ -3,39 +3,43 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
-      // Light theme with a deep-violet sidebar + violet accent, matching the
-      // BIZNEX_UI design snapshots. Class names are unchanged (ink/mist/accent…).
+      // Corporate Professional — slate surfaces + blue #2563eb accent.
+      // Class names unchanged (ink/mist/accent…) so pages need no edits.
       colors: {
         ink: {
-          DEFAULT: '#f4f5f9',  // page background
-          dark: '#eef0f6',     // deepest surface (receipts, charts)
-          light: '#2b166e',    // sidebar — deep violet
-          lighter: '#f7f8fc',  // inputs / secondary surfaces
+          DEFAULT: '#f8fafc',  // page background (slate-50)
+          dark: '#f1f5f9',     // deepest light surface (slate-100)
+          light: '#020617',    // sidebar — slate-950
+          lighter: '#ffffff',  // inputs / secondary surfaces
           card: '#ffffff',     // cards
-          border: '#e5e8f0',
-          border2: '#d4d9e6',
+          border: '#e2e8f0',   // slate-200
+          border2: '#cbd5e1',  // slate-300
         },
         mist: {
-          DEFAULT: '#1d2340',  // primary text (dark navy)
-          dim: '#565e80',      // secondary text
-          faint: '#8b90a8',    // muted text
+          DEFAULT: '#0f172a',  // primary text (slate-900)
+          dim: '#475569',      // secondary text (slate-600)
+          faint: '#94a3b8',    // muted text (slate-400)
         },
         accent: {
-          DEFAULT: '#6721d6',  // violet (snapshot #6721d6)
-          light: '#7c3aed',
-          dark: '#5719b8',
+          DEFAULT: '#2563eb',  // blue-600
+          light: '#3b82f6',    // blue-500
+          dark: '#1d4ed8',     // blue-700
         },
         good: { DEFAULT: '#16a34a', dark: '#15803d' },
         warn: { DEFAULT: '#d97706', dark: '#b45309' },
         bad: { DEFAULT: '#dc2626', dark: '#b91c1c' },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Ubuntu', 'sans-serif'],
+        sans: ['Satoshi', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Ubuntu', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
+      borderRadius: {
+        card: '12px',
+        btn: '8px',
+      },
       boxShadow: {
-        glow: '0 0 0 1px rgba(103,33,214,0.35), 0 8px 24px rgba(103,33,214,0.25)',
-        card: '0 1px 2px rgba(16,24,40,0.05), 0 8px 24px -10px rgba(16,24,40,0.12)',
+        glow: '0 0 0 1px rgba(37,99,235,0.25), 0 8px 24px rgba(37,99,235,0.18)',
+        card: '0 1px 2px rgba(15,23,42,0.05), 0 8px 24px -12px rgba(15,23,42,0.12)',
       },
       keyframes: {
         fadeUp: {

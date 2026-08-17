@@ -5,8 +5,8 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#080b12",
-    "primaryColor": "#4f7fff",
+    "backgroundColor": "#020617",
+    "primaryColor": "#2563eb",
     "icon": "./assets/icon.png",
     "android": {
       "package": "in.biznex.owner",

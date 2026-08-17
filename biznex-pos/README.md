@@ -237,7 +237,7 @@ First-time setup (only needed once):
 ## Part 3 — The marketing website
 
 The marketing site lives in its **own repository** (`biznex-website`, sibling of this
-one), built with React + Vite + Tailwind in a Bauhaus-inspired design system and
+one), built with React + Vite + Tailwind in a corporate enterprise design system and
 deployed to Netlify on every push. See that repo's `README.md` for local dev and
 deploy instructions.
 

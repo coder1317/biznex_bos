@@ -38,8 +38,8 @@ export default function Layout({ children }) {
     return () => { clearInterval(t); window.removeEventListener('online', on); window.removeEventListener('offline', off); };
   }, []);
 
-  // Light badges for the deep-violet sidebar
-  const roleBadge = { owner: 'bg-white/25 text-white', admin: 'bg-purple-400/40 text-white', manager: 'bg-cyan-400/30 text-white', cashier: 'bg-white/10 text-white/80' };
+  // Light badges for the deep-slate sidebar
+  const roleBadge = { owner: 'bg-white/25 text-white', admin: 'bg-blue-400/40 text-white', manager: 'bg-cyan-400/30 text-white', cashier: 'bg-white/10 text-white/80' };
 const ROLE_LEVEL = { owner: 4, admin: 3, manager: 2, cashier: 1 };
 
   return (

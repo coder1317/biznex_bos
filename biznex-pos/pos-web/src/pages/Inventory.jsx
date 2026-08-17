@@ -110,7 +110,7 @@ export default function Inventory() {
                   <tr key={p.id} className="hover:bg-ink-lighter/40 transition-colors">
                     <td className="td">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ backgroundColor: p.category_color || '#6366f1' }}>{p.name[0]}</div>
+                        <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ backgroundColor: p.category_color || '#2563eb' }}>{p.name[0]}</div>
                         <div>
                           <div className="font-medium text-mist">{p.name}</div>
                           {p.barcode && <div className="text-[10px] text-mist-faint font-mono">{p.barcode}</div>}

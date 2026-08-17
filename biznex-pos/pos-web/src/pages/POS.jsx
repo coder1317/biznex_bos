@@ -176,7 +176,7 @@ export default function POS() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0"
-                      style={{ backgroundColor: p.category_color || '#6366f1' }}>{p.name[0]}</div>
+                      style={{ backgroundColor: p.category_color || '#2563eb' }}>{p.name[0]}</div>
                     <span className={`badge ${p.stock_qty <= 0 ? 'bg-bad/15 text-bad' : p.stock_qty <= p.reorder_threshold ? 'bg-warn/15 text-warn' : 'bg-good/15 text-good'}`}>
                       {p.stock_qty <= 0 ? 'Out' : `${p.stock_qty} in stock`}
                     </span>

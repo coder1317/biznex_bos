@@ -1,22 +1,23 @@
-// Owner-portal design language — matches biznex_owner_portal.html:
-// near-black blue background, blue accent (#4f7fff), emerald/amber/red tones.
+// Owner-portal design language — corporate enterprise palette:
+// deep slate (slate-950) backgrounds, blue #2563eb accent, with
+// green/amber/red reserved strictly for status indicators.
 export const C = {
-  bg: '#080b12',
-  bg2: '#0e1320',
-  card: '#0e1320',
-  card2: '#141b2d',
-  border: '#1e2840',
-  border2: '#253050',
-  text: '#e2e8f8',
-  dim: '#7b8db0',
-  faint: '#3d4f70',
-  accent: '#4f7fff',
-  accentLight: '#7ba4ff',
-  accentSoft: 'rgba(79,127,255,.12)',
+  bg: '#020617',        // slate-950
+  bg2: '#0b1220',       // slightly lifted slate
+  card: '#0f172a',      // slate-900
+  card2: '#151e2e',     // deep slate
+  border: '#1e293b',    // slate-800
+  border2: '#334155',   // slate-700
+  text: '#e2e8f0',      // slate-200
+  dim: '#94a3b8',       // slate-400
+  faint: '#64748b',     // slate-500
+  accent: '#2563eb',    // blue-600
+  accentLight: '#60a5fa', // blue-400
+  accentSoft: 'rgba(37,99,235,.14)',
   purple: '#a855f7',
-  green: '#22c97a',
-  amber: '#f59e0b',
-  red: '#ef4444',
+  green: '#16a34a',
+  amber: '#d97706',
+  red: '#dc2626',
   cyan: '#06b6d4',
 };
 

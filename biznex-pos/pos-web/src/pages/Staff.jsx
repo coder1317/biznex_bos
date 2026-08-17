@@ -5,7 +5,7 @@ import { Modal, Spinner, useToast, EmptyState } from '../components/ui';
 
 const ROLE_BADGE = {
   owner: 'bg-accent/20 text-accent-light',
-  admin: 'bg-purple-500/20 text-purple-300',
+  admin: 'bg-blue-500/20 text-blue-300',
   manager: 'bg-cyan-500/20 text-cyan-300',
   cashier: 'bg-mist-faint/20 text-mist-dim',
 };

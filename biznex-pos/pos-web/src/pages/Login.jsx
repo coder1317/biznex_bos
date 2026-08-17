@@ -15,10 +15,10 @@ const LockIcon = ({ open }) => (
 
 const ROLE_STYLE = {
   admin: 'border-accent/30 bg-accent/10 hover:border-accent/60',
-  manager: 'border-purple-400/30 bg-purple-400/10 hover:border-purple-400/60',
+  manager: 'border-blue-400/30 bg-blue-400/10 hover:border-blue-400/60',
   cashier: 'border-cyan-400/30 bg-cyan-400/10 hover:border-cyan-400/60',
 };
-const ROLE_DOT = { admin: 'bg-accent', manager: 'bg-purple-400', cashier: 'bg-cyan-400' };
+const ROLE_DOT = { admin: 'bg-accent', manager: 'bg-blue-400', cashier: 'bg-cyan-400' };
 
 export default function Login() {
   const { login } = useAuth();
@@ -49,7 +49,7 @@ export default function Login() {
     <div className="min-h-full flex items-center justify-center p-4 bg-ink relative overflow-hidden">
       {/* Ambient background */}
       <div className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-accent/15 blur-[130px]" />
-      <div className="absolute -bottom-40 -right-40 w-[520px] h-[520px] rounded-full bg-purple-600/15 blur-[130px]" />
+      <div className="absolute -bottom-40 -right-40 w-[520px] h-[520px] rounded-full bg-blue-500/15 blur-[130px]" />
       <div className="absolute top-1/3 right-1/4 w-[300px] h-[300px] rounded-full bg-cyan-400/10 blur-[110px]" />
 
       <div className="relative w-full max-w-sm animate-fadeUp">
