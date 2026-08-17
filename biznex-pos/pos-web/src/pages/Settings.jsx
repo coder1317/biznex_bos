@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -13,17 +13,55 @@ export default function Settings() {
   const [addresses, setAddresses] = useState([]);
   const [selected, setSelected] = useState(0);
   const [qrDataUrl, setQrDataUrl] = useState('');
+  const [lastChecked, setLastChecked] = useState(null);
+  const [ipChanged, setIpChanged] = useState(false);
+  const selectedRef = useRef(0);
 
   useEffect(() => {
     api('/settings').then((d) => setSettings(d.settings)).catch(() => {});
   }, []);
 
-  // Addresses the owner phone can reach, for the pairing QR code.
+  // Pairing addresses — polled continuously so the QR always reflects the Pi's
+  // CURRENT address. When the store's Wi-Fi changes and the Pi gets a new IP,
+  // the QR regenerates by itself within a few seconds (no reload, no manual
+  // refresh). Keeps the user's selected entry by label where possible.
   useEffect(() => {
-    api('/device/addresses')
-      .then((d) => { if (d.addresses?.length) setAddresses(d.addresses); })
-      .catch(() => {});
+    let cancelled = false;
+    let lastKey = '';
+    const poll = async () => {
+      try {
+        const d = await api('/device/addresses');
+        if (cancelled || !d.addresses?.length) return;
+        const key = d.addresses.map((a) => a.url).join('|');
+        if (key === lastKey) {
+          setLastChecked(new Date());
+          return;
+        }
+        const prev = addressesRef.current;
+        const prevChosen = prev[selectedRef.current];
+        lastKey = key;
+        setAddresses(d.addresses);
+        // Keep the selection by label (e.g. LAN / Tailscale / Remote) so the
+        // QR doesn't jump to a different address after a network change.
+        const idx = prevChosen ? d.addresses.findIndex((a) => a.label === prevChosen.label) : -1;
+        setSelected(idx >= 0 ? idx : 0);
+        setIpChanged(true);
+        setLastChecked(new Date());
+        setTimeout(() => setIpChanged(false), 4000);
+      } catch {
+        /* server unreachable — keep showing the last-known QR */
+      }
+    };
+    poll();
+    const t = setInterval(poll, 10000);
+    return () => { cancelled = true; clearInterval(t); };
   }, []);
+
+  // Mirror the current selection into a ref so the polling loop can read it
+  // without re-subscribing, and keep the addresses snapshot handy for diffs.
+  const addressesRef = useRef(addresses);
+  useEffect(() => { addressesRef.current = addresses; }, [addresses]);
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
 
   // Regenerate the QR whenever the selected address changes.
   useEffect(() => {
@@ -101,14 +139,30 @@ export default function Settings() {
             fills in automatically.
           </p>
           <div className="flex flex-col sm:flex-row gap-5 items-center">
-            <div className="bg-white rounded-xl p-3 shrink-0 shadow-lg">
+            <div className="bg-white rounded-xl p-3 shrink-0 shadow-lg relative">
               {qrDataUrl ? (
                 <img src={qrDataUrl} width={200} height={200} alt="Pairing QR code" className="rounded-lg" />
               ) : (
                 <div className="w-[200px] h-[200px] flex items-center justify-center text-xs text-mist-faint bg-white rounded-lg">Loading…</div>
               )}
+              {ipChanged && (
+                <div className="absolute inset-0 rounded-lg bg-accent/10 border-2 border-accent flex items-center justify-center text-center px-2">
+                  <span className="text-[11px] font-bold text-accent animate-fadeUp">IP changed — QR updated</span>
+                </div>
+              )}
             </div>
             <div className="flex-1 w-full space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${ipChanged ? 'bg-accent' : 'bg-green-400'}`} />
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${ipChanged ? 'bg-accent' : 'bg-green-500'}`} />
+                </span>
+                <span className="text-[11px] font-semibold text-mist-dim">
+                  Auto-refresh on · {lastChecked
+                    ? `checked ${Math.max(0, Math.round((Date.now() - lastChecked.getTime()) / 1000))}s ago`
+                    : 'checking…'}
+                </span>
+              </div>
               <div>
                 <label className="label">Address to pair</label>
                 {addresses.length > 1 ? (
