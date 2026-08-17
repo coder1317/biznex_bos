@@ -230,7 +230,20 @@ export async function clearSession(): Promise<void> {
  */
 export async function autoConnect(): Promise<{ user: User; server: string } | null> {
   try {
-    const server = await discoverServer();
+    let server = await discoverServer();
+    // Nothing known answers — the store may have moved Wi-Fi and picked up a
+    // new IP on the same subnet. Scan for it once before giving up to login.
+    if (!server) {
+      const last = await getServerUrl();
+      if (lanIpPrefix(last) && !subnetScanRunning) {
+        subnetScanRunning = true;
+        try {
+          server = await scanSubnet(last);
+        } finally {
+          subnetScanRunning = false;
+        }
+      }
+    }
     if (!server) return null;
     await setServerUrl(server);
     refreshPublicUrl(server); // learn any changed tunnel address immediately
@@ -423,6 +436,70 @@ export function restartRealtime(): void {
   if (started) wsConnect();
 }
 
+// ── Subnet auto-discovery ────────────────────────────────────────────────────
+// When the store's Wi-Fi changes, the Pi gets a new IP — usually still on the
+// same subnet (e.g. 192.168.1.x → 192.168.1.y). If every known address is dead,
+// probe the /24 subnet of the last-known LAN server for anything answering
+// /health as a Biznex store, so the app reconnects without a manual re-scan.
+
+const SCAN_CONCURRENCY = 20;
+const SCAN_TIMEOUT = 1500;
+const SCAN_COOLDOWN = 90_000; // never scan more often than this
+let lastSubnetScan = 0;
+let subnetScanRunning = false;
+
+/** "192.168.1" from "http://192.168.1.100:3000" (or null if not a LAN IP). */
+function lanIpPrefix(url: string): string | null {
+  const m = String(url || '').match(/^https?:\/\/(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.\d+(?::\d+)?/);
+  return m ? `${m[1]}.${m[2]}.${m[3]}` : null;
+}
+
+/** True when the host answers /health as a Biznex store (not just any server). */
+async function isBiznexStore(url: string): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), SCAN_TIMEOUT);
+    const res = await fetch(`${url}/health`, {
+      signal: controller.signal,
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+    });
+    clearTimeout(timer);
+    if (!res.ok) return false;
+    const data = await res.json().catch(() => null);
+    return data?.service === 'biznex-pos';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Probe every host on the last-known server's /24 subnet (skipping the old IP)
+ * for a live Biznex store. Concurrency-limited so the phone doesn't hammer the
+ * network. Returns the first store found, or null.
+ */
+async function scanSubnet(lastServer: string): Promise<string | null> {
+  const prefix = lanIpPrefix(lastServer);
+  if (!prefix) return null;
+  const port = (lastServer.match(/:\d+/) ? lastServer.match(/:\d+/)?.[0].slice(1) : '') || '3000';
+  const oldIp = (lastServer.match(/https?:\/\/([\d.]+)/) || [])[1];
+  const hosts: string[] = [];
+  for (let i = 1; i <= 254; i++) {
+    const ip = `${prefix}.${i}`;
+    if (ip === oldIp) continue;
+    hosts.push(`http://${ip}:${port}`);
+  }
+  let next = 0;
+  const workers = Array.from({ length: SCAN_CONCURRENCY }, async () => {
+    while (next < hosts.length) {
+      const url = hosts[next++];
+      if (await isBiznexStore(url)) return url;
+    }
+    return null;
+  });
+  const found = (await Promise.all(workers)).find(Boolean);
+  return found ?? null;
+}
+
 // ── Failover health monitor ──────────────────────────────────────────────────
 
 let healthTimer: ReturnType<typeof setInterval> | null = null;
@@ -430,7 +507,8 @@ let healthTimer: ReturnType<typeof setInterval> | null = null;
 /**
  * Periodically re-check the store while the live socket is down. If another
  * candidate (e.g. the ngrok tunnel) answers when the current server doesn't,
- * switch to it automatically so the app stays connected from anywhere.
+ * switch to it automatically. If nothing known answers, scan the last-known
+ * server's subnet — the Pi may have a brand-new IP after a Wi-Fi change.
  */
 export function startHealthMonitor(): void {
   stopHealthMonitor();
@@ -443,10 +521,29 @@ export function startHealthMonitor(): void {
         await refreshPublicUrl(current);
         return;
       }
+      // 1. Probe known candidates (saved, original IP, ngrok, remembered).
       const server = await discoverServer();
       if (server && server !== current) {
         await setServerUrl(server);
         restartRealtime();
+        return;
+      }
+      // 2. Store may have moved Wi-Fi → new IP on the same subnet. Scan it
+      //    (rate-limited, never while another scan is already running).
+      const now = Date.now();
+      if (lanIpPrefix(current) && now - lastSubnetScan > SCAN_COOLDOWN && !subnetScanRunning) {
+        subnetScanRunning = true;
+        lastSubnetScan = now;
+        try {
+          const found = await scanSubnet(current);
+          if (found && found !== current) {
+            await setServerUrl(found);
+            await rememberServer(found);
+            restartRealtime();
+          }
+        } finally {
+          subnetScanRunning = false;
+        }
       }
     } catch {
       /* keep the socket's own retry loop running */

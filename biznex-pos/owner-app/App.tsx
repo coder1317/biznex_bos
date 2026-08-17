@@ -242,7 +242,9 @@ export default function App() {
             >
               <Ionicons name={conn === 'offline' ? 'cloud-offline-outline' : 'sync-outline'} size={15} color="#fff" />
               <Text style={s.barText}>
-                {conn === 'offline' ? "Can't reach the store server — tap to change address" : 'Connecting to store…'}
+                {conn === 'offline'
+                  ? "Can't reach the store — store moved Wi-Fi? Tap to re-pair with the QR"
+                  : 'Connecting to store…'}
               </Text>
               <Text style={s.barAction}>Fix</Text>
             </TouchableOpacity>

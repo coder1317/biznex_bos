@@ -144,10 +144,15 @@ export default function Settings({ onLogout }: { onLogout: () => void }) {
         <View style={s.connRow}>
           <View style={[s.dot, { backgroundColor: conn === 'online' ? C.green : conn === 'connecting' ? C.amber : C.red }]} />
           <Text style={s.connText}>
-            {conn === 'online' ? 'Connected to ' : conn === 'connecting' ? 'Connecting to ' : 'Offline — retrying '}
+            {conn === 'online' ? 'Connected to ' : conn === 'connecting' ? 'Connecting to ' : 'Offline — auto-searching '}
             {serverUrl}
           </Text>
         </View>
+        {conn !== 'online' && (
+          <Text style={s.hintText}>
+            Store moved Wi-Fi? The app is scanning its network for the new IP — or tap the QR button to re-pair from the store screen.
+          </Text>
+        )}
 
         {servers.length > 0 && (
           <>
@@ -307,6 +312,7 @@ const s = StyleSheet.create({
   saveText: { color: '#fff', fontSize: F.sm, fontWeight: '700' },
   okText: { color: C.green, fontSize: F.xs, marginTop: 8, fontWeight: '600' },
   failText: { color: C.red, fontSize: F.xs, marginTop: 8, fontWeight: '600' },
+  hintText: { color: C.amber, fontSize: F.xs, marginTop: 8, lineHeight: 17, fontWeight: '500' },
   connRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
   dot: { width: 8, height: 8, borderRadius: 4 },
   connText: { color: C.dim, fontSize: F.xs, flex: 1 },
