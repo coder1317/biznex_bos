@@ -18,5 +18,7 @@ export const config = {
 };
 
 if (process.env.NODE_ENV === 'production' && config.jwtSecret === 'dev-secret-change-me-in-production') {
-  console.warn('  ⚠ JWT_SECRET is using the default value — set a strong secret in .env for production.');
+  console.error('  ✖ FATAL: JWT_SECRET is using the default value. Set a strong secret in .env for production.');
+  console.error('  ✖ Refusing to start — tokens would be forgeable.');
+  process.exit(1);
 }

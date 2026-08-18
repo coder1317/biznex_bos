@@ -51,6 +51,12 @@ app.use(cors({
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true });
 app.use('/api/auth', authLimiter);
 
+// Rate-limit write-heavy endpoints to prevent abuse if the server is exposed.
+const writeLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, standardHeaders: true });
+app.use('/api/orders', writeLimiter);
+app.use('/api/products', writeLimiter);
+app.use('/api/inventory', writeLimiter);
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Routes
 // ─────────────────────────────────────────────────────────────────────────────
@@ -114,14 +120,24 @@ server.listen(config.port, config.host, () => {
   console.log(`  • Health       : http://localhost:${config.port}/health`);
   console.log(`  • Realtime WS  : ws://localhost:${config.port}/ws`);
   console.log('');
-  console.log('  Default logins:');
-  console.log('    admin  / admin123    (owner)');
-  console.log('    manager / manager123 (manager)');
-  console.log('    cashier / cashier123 (cashier)');
-  console.log('');
+  if (config.isDev) {
+    console.log('  Default logins (dev only):');
+    console.log('    admin  / admin123    (owner)');
+    console.log('    manager / manager123 (manager)');
+    console.log('    cashier / cashier123 (cashier)');
+    console.log('');
+  }
   console.log('  IMPORTANT: change the default passwords on first login.');
   console.log('  Find your Pi IP with: hostname -I');
   console.log('');
+});
+
+// Unhandled errors — log and keep running (don't crash silently)
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled promise rejection:', err);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
 });
 
 // Graceful shutdown

@@ -148,6 +148,10 @@ CREATE INDEX IF NOT EXISTS idx_stock_movements_product ON stock_movements(produc
 export const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
+// Limit WAL file growth: auto-checkpoint after 2000 pages (~8 MB).
+db.pragma('wal_autocheckpoint = 2000');
+// If the DB is locked (concurrent writes), wait up to 5 seconds before failing.
+db.pragma('busy_timeout = 5000');
 db.exec(SCHEMA);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -198,7 +202,9 @@ export function seedIfEmpty() {
     db.prepare(
       'INSERT INTO users (name, username, password_hash, role) VALUES (?, ?, ?, ?)'
     ).run('Cashier', 'cashier', bcrypt.hashSync('cashier123', 10), 'cashier');
-    console.log('  ✓ Seeded users: admin/admin123, manager/manager123, cashier/cashier123');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('  ✓ Seeded users: admin/admin123, manager/manager123, cashier/cashier123');
+    }
   }
 
   const catCount = db.prepare('SELECT COUNT(*) AS c FROM categories').get().c;
