@@ -208,7 +208,7 @@ const s = StyleSheet.create({
     width: 340,
     height: 340,
     borderRadius: 170,
-    backgroundColor: 'rgba(99,102,241,0.16)',
+    backgroundColor: 'rgba(37,99,235,0.16)',
   },
   glowBottom: {
     position: 'absolute',
@@ -217,7 +217,7 @@ const s = StyleSheet.create({
     width: 360,
     height: 360,
     borderRadius: 180,
-    backgroundColor: 'rgba(168,85,247,0.12)',
+    backgroundColor: 'rgba(96,165,250,0.10)',
   },
   wrap: { flexGrow: 1, justifyContent: 'center', padding: 24, paddingVertical: 48 },
   logoWhite: { backgroundColor: '#ffffff' },

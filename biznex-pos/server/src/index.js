@@ -127,7 +127,9 @@ server.listen(config.port, config.host, () => {
     console.log('    cashier / cashier123 (cashier)');
     console.log('');
   }
-  console.log('  IMPORTANT: change the default passwords on first login.');
+  if (config.isDev) {
+    console.log('  IMPORTANT: change the default passwords on first login.');
+  }
   console.log('  Find your Pi IP with: hostname -I');
   console.log('');
 });

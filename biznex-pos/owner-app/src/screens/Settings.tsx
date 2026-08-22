@@ -210,7 +210,9 @@ export default function Settings({ onLogout }: { onLogout: () => void }) {
         <TouchableOpacity
           style={[s.saveBtn, { marginTop: 14 }]}
           onPress={async () => {
+            setRefreshing(true);
             await syncAll(true);
+            setRefreshing(false);
           }}
           disabled={refreshing}
         >
